@@ -2,6 +2,8 @@ package com.example.tetris22.models;
 import android.graphics.Color;
 import android.graphics.Point;
 
+import com.example.tetris22.constants.FieldConstants;
+
 import java.util.Random;
 
 public class Block {
@@ -20,13 +22,13 @@ public class Block {
             this.byteValue = value;
         }
         private final int rgbValue;
-        private final int byteValue;
+        private final byte byteValue;
     }
     private Block(int shapeIndex, BlockColor blockColor) {
         this.frameNumber = 0;
         this.shapeIndex = shapeIndex;
         this.color = blockColor;
-        this.position = new Point(AppModel.fieldConstants.COLUMN_COUNT.getValue() / 2, 0);
+        this.position = new Point(FieldConstants.COLUMN_COUNT.getValue() / 2, 0);
     }
 
     public static Block createBlock() {
@@ -45,5 +47,32 @@ public class Block {
             }
         }
         return -1;
+    }
+    public final byte[][] getShape(int frameNumber) {
+        return Shape.values()[shapeIndex].getFrame(frameNumber).as2dByteArray();
+    }
+
+    public final void setState(int frame, Point position) {
+        this.frameNumber = frame;
+        this.position = position;
+    }
+
+    public Point getPosition() {
+        return this.position;
+    }
+
+    public final int getFrameCount() {
+        return Shape.values()[shapeIndex].getFrameCount();
+    }
+
+    public int getFrameNumber() {
+        return frameNumber;
+    }
+
+    public int getColor() {
+        return color.rgbValue;
+    }
+    public byte getStaticValue() {
+        return color.byteValue;
     }
 }
