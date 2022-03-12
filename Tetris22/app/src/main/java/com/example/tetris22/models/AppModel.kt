@@ -143,4 +143,32 @@ class AppModel {
                 .forEach{field[i][it] = CellConstants.EMPTY.value}
         }
     }
+
+    private fun persistCellData() {
+        for (i in 0 until field.size) {
+            for (j in 0 until field[i].size) {
+                var status = getCellStatus(i, j)
+                if (status == CellConstants.EPHEMERAL.value) {
+                    status = currentBlock?.staticValue
+                    setCellStatus(i, j, status)
+                }
+            }
+        }
+    }
+
+    private fun assessField() {
+        for (i in 0 until field.size) {
+            var emptyCells = 0
+            for (j in 0 until field[i].size) {
+                val status = getCellStatus(i, j)
+                val isEmpty = CellConstants.EMPTY.value == status
+                if (isEmpty) {
+                    emptyCells++
+                }
+                if (emptyCells == 0) {
+                    shiftRows(i)
+                }
+            }
+        }
+    }
 }
