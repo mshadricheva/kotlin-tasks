@@ -106,7 +106,7 @@ class AppModel {
                     coordinate?.y = currentBlock?.position?.y?.plus(1)
                 }
                 Motions.ROTATE.name -> {
-                    frameNumber == frameNumber?.plus(1)
+                    frameNumber = frameNumber?.plus(1)
                     if (frameNumber != null) {
                         if (frameNumber >= currentBlock?.frameCount as Int) {
                             frameNumber = 0
@@ -170,5 +170,65 @@ class AppModel {
                 }
             }
         }
+    }
+
+    private fun translateBlock(position: Point, frameNumber: Int) {
+        synchronized(field) {
+            val shape: Array<ByteArray>? = currentBlock?.getShape(frameNumber)
+            if (shape != null) {
+                for(i in shape.indices) {
+                    for (j in shape[i].indices) {
+                        val y = position.y + i
+                        val x = position.x + j
+                        if (CellConstants.EMPTY.value != shape[i][j]) {
+                            field[y][x] = shape[i][j]
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun blockAdditionPossible(): Boolean {
+        if (!moveValid(currentBlock?.position as Point, currentBlock?.frameNumber)) {
+            return false
+        }
+        return true
+    }
+
+    private fun shiftRows(nToRow: Int) {
+        if (nToRow > 0) {
+            for (j in nToRow - 1 downTo 0) {
+                for(m in 0 until field[j].size) {
+                    setCellStatus(j + 1, m, getCellStatus(j, m))
+                }
+            }
+        }
+        for (j in field[0].indices) {
+            setCellStatus(0, j, CellConstants.EMPTY.value)
+        }
+    }
+
+    fun startGame() {
+        if (!isGameActive()) {
+            currentState = Statuses.ACTIVE.name
+            generateNextBlock()
+        }
+    }
+
+    fun restartGame() {
+        resetModel()
+        startGame()
+    }
+
+    fun endGame() {
+        score = 0
+        currentState = Statuses.OVER.name
+    }
+
+    private fun resetModel() {
+        resetField(false)
+        currentState = Statuses.AWAITING_START.name
+        score = 0
     }
 }
